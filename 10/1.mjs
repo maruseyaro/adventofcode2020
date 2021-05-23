@@ -1,6 +1,6 @@
 import fs from "fs";
 
-let contents = fs.readFileSync("./10/input.sample.txt", "utf-8");
+let contents = fs.readFileSync("input.txt", "utf-8");
 
 let parseInput = (contents) => {
   return contents.split(/\n/).map((line) => parseInt(line, 10));
@@ -8,57 +8,31 @@ let parseInput = (contents) => {
 
 let input = parseInput(contents);
 
-let selectAdapters = (sourceJoltage, adapters) => {
-  let compatibleAdapters = [];
-
-  for (let i = 0; i < adapters.length; i++) {
-    let adapterJoltage = adapters[i];
-    let diff = adapterJoltage - sourceJoltage;
-    let id = adapters.findIndex((a) => a === adapterJoltage);
-
-    if (diff >= 1 && diff <= 3) {
-      let adapter = { id, diff, rating: adapterJoltage };
-      compatibleAdapters.push(adapter);
-    }
-  }
-
-  return compatibleAdapters;
-};
-
 let solve = (input) => {
   input.sort((a, b) => a - b);
 
-  let highestRating = Math.max(...input);
-  let index = input.findIndex((a) => a === highestRating);
-  let highestRatedAdapater = { id: index, rating: highestRating };
-  let device = { id: input.length, diff: 0, rating: highestRating + 3 };
-  let outlet = { id: -1, diff: 0, rating: 0 };
-  let nextAdapter = outlet;
+  let highestJoltage = Math.max(...input);
+  let deviceJoltage = highestJoltage + 3;
 
-  let used = [];
-  let ads = [];
+  let outletJoltage = 0;
+  let joltages = [outletJoltage].concat(input).concat(deviceJoltage);
 
-  let j = 0;
+  let i = 1;
+  let diffs = [];
 
-  while (j < input.length) {
-    let possibleAdapters = selectAdapters(nextAdapter, input);
+  while (i < joltages.length) {
+    let diff = joltages[i] - joltages[i - 1];
 
-    console.log(possibleAdapters);
-
-    for (let i = 0; i < possibleAdapters.length; i++) {
-      let adapter = possibleAdapters[i];
-
-      if (!used.includes(adapter.id)) {
-        nextAdapter = adapter;
-        used.push(nextAdapter.id);
-        ads.push(nextAdapter);
-      }
-    }
-
-    j++;
+    diffs.push(diff);
+    i++;
   }
 
-  return ads;
+  let diffsOfOne = diffs.filter((diff) => diff === 1);
+  let diffsOfThree = diffs.filter((diff) => diff === 3);
+
+  return diffsOfOne.length * diffsOfThree.length;
 };
 
-console.log(solve(input));
+let result = solve(input);
+
+console.log(result);
